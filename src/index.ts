@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -333,13 +334,24 @@ class Interpreter {
 }
 
 async function main(): Promise<void> {
-  const file = process.argv[2];
+  const args = process.argv.slice(2);
+  const command = args[0] === "run" ? args[0] : "run";
+  const file = args[0] === "run" ? args[1] : args[0];
 
-  if (!file) {
-    console.log("LZYNX 0.1.0");
-    console.log("Usage: npm run dev -- <file.lzn>");
-    console.log("Example: npm run dev -- examples/hello.lzn");
-    process.exitCode = 1;
+  if (args[0] === "--version" || args[0] === "-v") {
+    console.log("LZYNX 0.2.0");
+    return;
+  }
+
+  if (!file || args[0] === "--help" || args[0] === "-h") {
+    console.log("LZYNX 0.2.0");
+    console.log("");
+    console.log("Commands:");
+    console.log("  lzn run <file.lzn>   Execute a LZYNX program");
+    console.log("  lzn --version        Show version");
+    console.log("");
+    console.log("Example: lzn run examples/hello.lzn");
+    if (!file && args.length > 0) process.exitCode = 1;
     return;
   }
 
