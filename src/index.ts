@@ -332,6 +332,8 @@ async function main(): Promise<void> {
     if (args.length === 0) process.exitCode = 1;
     return;
   }
+  const invokedAsCreateFile = process.argv[1]?.split(/[\\/]/).pop() === "create.file";
+  if (invokedAsCreateFile) { await createFile(args.join(" ")); return; }
   if (args[0] === "create.file") { await createFile(args.slice(1).join(" ")); return; }
   const file = args[0] === "run" ? args[1] : args[0];
   if (!file) { console.error("Missing program file. Usage: lzn run <file.lzn>"); process.exitCode = 1; return; }
