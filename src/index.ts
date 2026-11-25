@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+import { createInterface } from "node:readline";
 import { resolve } from "node:path";
 
 type Value = string | number | boolean;
@@ -268,17 +269,70 @@ class Interpreter {
   private previous(): Token { return this.tokens[this.position - 1]; }
 }
 
+
+async function createFile(name: string): Promise<void> {
+  if (!name.trim()) {
+    console.error("Informe o nome do arquivo. Exemplo: create.file hello");
+    process.exitCode = 1;
+    return;
+  }
+
+  const fileName = name.endsWith(".lzn") ? name : name + ".lzn";
+  const filePath = resolve(fileName);
+  const lines: string[] = [];
+  const terminal = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: "lzn > "
+  });
+
+  console.log("Editor LZYNX — " + fileName);
+  console.log("Digite seu código. Comandos: :save para salvar | :cancel para cancelar");
+  terminal.prompt();
+
+  let shouldSave = false;
+  for await (const line of terminal) {
+    if (line.trim() === ":save") {
+      shouldSave = true;
+      break;
+    }
+    if (line.trim() === ":cancel") break;
+    lines.push(line);
+    terminal.prompt();
+  }
+  terminal.close();
+
+  if (!shouldSave) {
+    console.log("Criação cancelada. Nenhum arquivo foi salvo.");
+    return;
+  }
+
+  try {
+    await writeFile(filePath, lines.length ? lines.join("\n") + "\n" : "", { encoding: "utf8", flag: "wx" });
+    console.log("Arquivo criado: " + fileName);
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "EEXIST") {
+      console.error("Esse arquivo já existe. Nada foi sobrescrito.");
+    } else {
+      console.error(error instanceof Error ? error.message : "Não foi possível salvar o arquivo.");
+    }
+    process.exitCode = 1;
+  }
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  if (args[0] === "--version" || args[0] === "-v") { console.log("LZYNX 0.0.2"); return; }
+  if (args[0] === "--version" || args[0] === "-v") { console.log("LZYNX 0.0.3"); return; }
   if (args[0] === "--help" || args[0] === "-h" || args.length === 0) {
-    console.log("LZYNX 0.0.2");
+    console.log("LZYNX 0.0.3");
     console.log("Usage: lzn run <file.lzn>");
     console.log("       lzn <file.lzn>");
+    console.log("       create.file <file name>");
     console.log("       lzn --version");
     if (args.length === 0) process.exitCode = 1;
     return;
   }
+  if (args[0] === "create.file") { await createFile(args.slice(1).join(" ")); return; }
   const file = args[0] === "run" ? args[1] : args[0];
   if (!file) { console.error("Missing program file. Usage: lzn run <file.lzn>"); process.exitCode = 1; return; }
   try {
