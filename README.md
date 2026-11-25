@@ -2,7 +2,7 @@
 
 **Uma linguagem de programação simples, criada pela LZD Labs.**
 
-Versão atual: **0.0.3** (experimental). Interpretador em TypeScript com CLI `lzn`.
+Versão atual: **0.0.4** (experimental). Interpretador em TypeScript com CLI `lzn`.
 
 ## Requisitos
 - Node.js 20 ou superior
@@ -53,7 +53,7 @@ else:
     say("Menor de idade")
 ```
 
-## Recursos da versão 0.0.3
+## Recursos da versão 0.0.4
 - Comando `say(...)` e variáveis.
 - Números, textos e valores booleanos `true` / `false`.
 - Aritmética: `+`, `-`, `*`, `/` e parênteses.
@@ -68,3 +68,23 @@ else:
 A linguagem continua experimental. Recursos como loops, funções, bibliotecas e compilação multiplataforma ainda serão desenvolvidos.
 
 Made with 💜 by **LZD Labs**.
+
+
+## Primeira interface visual
+
+A LZYNX pode gerar uma página HTML a partir de elementos visuais:
+
+```lzn
+title("Meu primeiro app")
+text("Bem-vindo à minha aplicação!")
+button("Abrir YouTube").open("https://youtube.com")
+button("Botão sem link")
+```
+
+Gere o arquivo visual com:
+
+```bash
+lzn build app.lzn
+```
+
+Isso cria `app.html`, que pode ser aberto em um navegador. Esta é a primeira etapa do sistema visual; o editor visual LZ Design será desenvolvido depois.
