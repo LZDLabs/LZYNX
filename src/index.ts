@@ -191,13 +191,19 @@ class Interpreter {
         const equal = typeof left === typeof right && left === right;
         left = op === "==" ? equal : !equal;
       } else {
-        if (typeof left !== typeof right || (typeof left !== "number" && typeof left !== "string")) {
+        if (typeof left === "number" && typeof right === "number") {
+          if (op === ">") left = left > right;
+          else if (op === "<") left = left < right;
+          else if (op === ">=") left = left >= right;
+          else left = left <= right;
+        } else if (typeof left === "string" && typeof right === "string") {
+          if (op === ">") left = left > right;
+          else if (op === "<") left = left < right;
+          else if (op === ">=") left = left >= right;
+          else left = left <= right;
+        } else {
           throw new LzynxError("Comparison requires two numbers or two text values.", this.previous());
         }
-        if (op === ">") left = left > right;
-        else if (op === "<") left = left < right;
-        else if (op === ">=") left = left >= right;
-        else left = left <= right;
       }
     }
     return left;
