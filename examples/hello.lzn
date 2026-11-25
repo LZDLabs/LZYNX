@@ -1,0 +1,12 @@
+# Meu primeiro programa em LZYNX
+
+say("Hello, LZYNX!")
+
+name = "Luiz"
+say(name)
+
+result = 10 + 5
+say(result)
+
+greeting = "Olá, " + name + "!"
+say(greeting)
