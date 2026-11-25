@@ -1,6 +1,6 @@
 {
   "name": "lzynx",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
   "description": "A simple programming language by LZD Labs",
   "type": "module",
