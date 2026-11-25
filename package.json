@@ -1,6 +1,6 @@
 {
   "name": "lzynx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "description": "A simple programming language by LZD Labs",
   "type": "module",
@@ -17,5 +17,8 @@
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
+  },
+  "bin": {
+    "lzn": "dist/index.js"
   }
 }
