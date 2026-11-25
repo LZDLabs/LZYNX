@@ -2,25 +2,38 @@
 
 **Uma linguagem de programação simples, criada pela LZD Labs.**
 
-LZYNX está em desenvolvimento. Esta é a primeira versão experimental do interpretador, escrita em TypeScript.
+LZYNX está em desenvolvimento. A versão 0.2.0 traz uma CLI executável chamada `lzn`, além do interpretador em TypeScript.
 
 ## Requisitos
 
 - Node.js 20 ou superior
 - npm
 
-## Instalar e executar
+## Instalação no ambiente de desenvolvimento
 
 ```bash
 git clone https://github.com/LZDLabs/LZYNX.git
 cd LZYNX
 npm install
-npm run dev -- examples/hello.lzn
+npm run build
+npm link
+```
+
+Depois da instalação, o comando `lzn` fica disponível no terminal.
+
+## Executar um programa
+
+```bash
+lzn run examples/hello.lzn
+```
+
+Também é possível executar diretamente um arquivo:
+
+```bash
+lzn examples/hello.lzn
 ```
 
 ## Primeiro programa
-
-Crie um arquivo `hello.lzn`:
 
 ```lzn
 say("Hello, LZYNX!")
@@ -32,13 +45,13 @@ result = 10 + 5
 say(result)
 ```
 
-Execute:
+## Comandos
 
-```bash
-npm run dev -- hello.lzn
-```
+- `lzn run <arquivo.lzn>` executa um programa.
+- `lzn --version` mostra a versão.
+- `lzn --help` mostra a ajuda.
 
-## O que existe na versão 0.1.0
+## Recursos atuais
 
 - `say(...)` para mostrar valores no terminal.
 - Variáveis com atribuição usando `=`.
@@ -49,10 +62,10 @@ npm run dev -- hello.lzn
 
 ## Próximas etapas
 
-1. Condicionais e repetições.
-2. Funções definidas pelo usuário.
-3. CLI `lzn` e LZYNX Studio.
-4. Bibliotecas e APIs.
+1. Condicionais e comparações.
+2. Repetições e funções.
+3. LZYNX Studio.
+4. Bibliotecas, APIs e módulos.
 5. Interfaces, aplicações e recursos de IA.
 
 A linguagem ainda não possui esses recursos futuros. Eles serão implementados gradualmente.
