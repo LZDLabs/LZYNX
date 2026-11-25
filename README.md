@@ -2,15 +2,13 @@
 
 **Uma linguagem de programação simples, criada pela LZD Labs.**
 
-LZYNX está em desenvolvimento. A versão 0.2.0 traz uma CLI executável chamada `lzn`, além do interpretador em TypeScript.
+Versão atual: **0.0.2** (experimental). Interpretador em TypeScript com CLI `lzn`.
 
 ## Requisitos
-
 - Node.js 20 ou superior
 - npm
 
-## Instalação no ambiente de desenvolvimento
-
+## Instalar ou atualizar
 ```bash
 git clone https://github.com/LZDLabs/LZYNX.git
 cd LZYNX
@@ -19,57 +17,42 @@ npm run build
 npm link
 ```
 
-Depois da instalação, o comando `lzn` fica disponível no terminal.
-
-## Executar um programa
-
+Para atualizar uma cópia existente:
 ```bash
-lzn run examples/hello.lzn
+git pull --ff-only
+npm install
+npm run build
+npm link
 ```
 
-Também é possível executar diretamente um arquivo:
-
+## Executar
 ```bash
+lzn run examples/hello.lzn
+# ou
 lzn examples/hello.lzn
 ```
 
-## Primeiro programa
-
+## Exemplo com condições
 ```lzn
-say("Hello, LZYNX!")
+age = 20
 
-name = "Luiz"
-say(name)
-
-result = 10 + 5
-say(result)
+if age >= 18:
+    say("Maior de idade")
+else:
+    say("Menor de idade")
 ```
 
-## Comandos
-
-- `lzn run <arquivo.lzn>` executa um programa.
-- `lzn --version` mostra a versão.
-- `lzn --help` mostra a ajuda.
-
-## Recursos atuais
-
-- `say(...)` para mostrar valores no terminal.
-- Variáveis com atribuição usando `=`.
-- Números e textos.
-- Operações matemáticas: `+`, `-`, `*` e `/`.
+## Recursos da versão 0.0.2
+- Comando `say(...)` e variáveis.
+- Números, textos e valores booleanos `true` / `false`.
+- Aritmética: `+`, `-`, `*`, `/` e parênteses.
 - Concatenação de texto com `+`.
-- Mensagens de erro com linha e coluna.
+- Comparações: `>`, `<`, `>=`, `<=`, `==`, `!=`.
+- Condicionais `if/else` com blocos indentados.
+- Comentários iniciados por `#`.
+- Erros com linha e coluna.
+- CLI: `lzn run`, `lzn --version`, `lzn --help`.
 
-## Próximas etapas
-
-1. Condicionais e comparações.
-2. Repetições e funções.
-3. LZYNX Studio.
-4. Bibliotecas, APIs e módulos.
-5. Interfaces, aplicações e recursos de IA.
-
-A linguagem ainda não possui esses recursos futuros. Eles serão implementados gradualmente.
-
----
+A linguagem continua experimental. Recursos como loops, funções, bibliotecas e compilação multiplataforma ainda serão desenvolvidos.
 
 Made with 💜 by **LZD Labs**.
