@@ -19,6 +19,7 @@
     "typescript": "^5.7.0"
   },
   "bin": {
-    "lzn": "dist/index.js"
+    "lzn": "dist/index.js",
+    "create.file": "dist/index.js"
   }
 }
