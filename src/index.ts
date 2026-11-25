@@ -105,7 +105,7 @@ function tokenize(source: string): Token[] {
     if ([">=", "<=", "==", "!="].includes(two)) {
       add("symbol", two); i += 2; column += 2; continue;
     }
-    if ("=+-*/(),:><".includes(ch)) {
+    if ("=+-*/(),:><.".includes(ch)) {
       add("symbol", ch); i++; column++; continue;
     }
     throw new LzynxError('Unexpected character "' + ch + '".', { type: "symbol", value: ch, line, column });
@@ -115,10 +115,13 @@ function tokenize(source: string): Token[] {
   return tokens;
 }
 
+interface UIElement { kind: "title" | "text" | "button"; value: string; url?: string; }
+
 class Interpreter {
   private position = 0;
   private readonly variables = new Map<string, Value>();
-  constructor(private readonly tokens: Token[]) {}
+  readonly uiElements: UIElement[] = [];
+  constructor(private readonly tokens: Token[], private readonly visualMode = false) {}
 
   run(): void {
     while (!this.isAtEnd()) {
@@ -134,6 +137,23 @@ class Interpreter {
     const name = this.consume("identifier", "Expected a command or variable name.");
     if (name.value === "if") { this.ifStatement(execute); return; }
     if (name.value === "else") throw new LzynxError('Unexpected "else". It must follow an if block.', name);
+    if (["title", "text", "button"].includes(name.value) && this.matchSymbol("(")) {
+      const label = this.expression();
+      this.consumeSymbol(")", 'Expected ")" after the visual element text.');
+      if (typeof label !== "string") throw new LzynxError("Visual elements require text inside quotes.", name);
+      let url: string | undefined;
+      if (name.value === "button" && this.matchSymbol(".")) {
+        const method = this.consume("identifier", 'Expected "open" after the button.');
+        if (method.value !== "open") throw new LzynxError('Unknown button method "' + method.value + '".', method);
+        this.consumeSymbol("(", 'Expected "(" after button.open.');
+        const destination = this.expression();
+        this.consumeSymbol(")", 'Expected ")" after the button link.');
+        if (typeof destination !== "string") throw new LzynxError("The button link must be text inside quotes.", method);
+        url = destination;
+      }
+      if (execute && this.visualMode) this.uiElements.push({ kind: name.value as UIElement["kind"], value: label, url });
+      return;
+    }
     if (name.value === "say" && this.matchSymbol("(")) {
       const value = this.expression();
       this.consumeSymbol(")", 'Expected ")" after the value.');
@@ -270,6 +290,33 @@ class Interpreter {
 }
 
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    const entities: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+    return entities[char];
+  });
+}
+
+function renderHtml(elements: UIElement[], sourceName: string): string {
+  const pageTitle = elements.find((element) => element.kind === "title")?.value ?? sourceName;
+  const body = elements.map((element) => {
+    const value = escapeHtml(element.value);
+    if (element.kind === "title") return "<h1>" + value + "</h1>";
+    if (element.kind === "text") return "<p>" + value + "</p>";
+    if (element.url) return '<a class="button" href="' + escapeHtml(element.url) + '" target="_blank" rel="noopener noreferrer">' + value + "</a>";
+    return '<button type="button">' + value + "</button>";
+  }).join("\n    ");
+  return [
+    "<!doctype html>",
+    '<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
+    "<title>" + escapeHtml(pageTitle) + "</title>",
+    "<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:48px 20px;background:#100b1c;color:#f7f2ff;font-family:system-ui,sans-serif}main{width:min(100%,720px);margin:0 auto;padding:32px;border:1px solid #392653;border-radius:20px;background:#1a1228}h1{margin:0 0 18px;color:#c9a7ff;font-size:clamp(28px,6vw,42px)}p{color:#ded4eb;line-height:1.7}button,.button{display:inline-block;margin:8px 8px 0 0;padding:12px 20px;border:0;border-radius:12px;background:#7c3aed;color:white;font:inherit;font-weight:650;text-decoration:none;cursor:pointer}button:hover,.button:hover{background:#9258f4}</style>",
+    "</head><body><main>",
+    body,
+    "</main></body></html>"
+  ].join("\n");
+}
+
 async function createFile(name: string): Promise<void> {
   if (!name.trim()) {
     console.error("Informe o nome do arquivo. Exemplo: create.file hello");
@@ -322,10 +369,11 @@ async function createFile(name: string): Promise<void> {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  if (args[0] === "--version" || args[0] === "-v") { console.log("LZYNX 0.0.3"); return; }
+  if (args[0] === "--version" || args[0] === "-v") { console.log("LZYNX 0.0.4"); return; }
   if (args[0] === "--help" || args[0] === "-h" || args.length === 0) {
     console.log("LZYNX 0.0.3");
     console.log("Usage: lzn run <file.lzn>");
+    console.log("       lzn build <file.lzn>");
     console.log("       lzn <file.lzn>");
     console.log("       create.file <file name>");
     console.log("       lzn --version");
@@ -335,11 +383,19 @@ async function main(): Promise<void> {
   const invokedAsCreateFile = process.argv[1]?.split(/[\\/]/).pop() === "create.file";
   if (invokedAsCreateFile) { await createFile(args.join(" ")); return; }
   if (args[0] === "create.file") { await createFile(args.slice(1).join(" ")); return; }
-  const file = args[0] === "run" ? args[1] : args[0];
+  const buildMode = args[0] === "build";
+  const file = (args[0] === "run" || buildMode) ? args[1] : args[0];
   if (!file) { console.error("Missing program file. Usage: lzn run <file.lzn>"); process.exitCode = 1; return; }
   try {
     const source = await readFile(resolve(file), "utf8");
-    new Interpreter(tokenize(source)).run();
+    const interpreter = new Interpreter(tokenize(source), buildMode);
+    interpreter.run();
+    if (buildMode) {
+      const output = resolve(file.replace(/\.lzn$/i, "") + ".html");
+      const sourceName = file.split(/[\\/]/).pop()?.replace(/\.lzn$/i, "") ?? "LZYNX App";
+      await writeFile(output, renderHtml(interpreter.uiElements, sourceName), "utf8");
+      console.log("Visual criado: " + output);
+    }
   } catch (error) {
     console.error(error instanceof Error ? error.message : "An unknown error occurred.");
     process.exitCode = 1;
