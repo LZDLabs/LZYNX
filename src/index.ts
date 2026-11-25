@@ -335,7 +335,6 @@ class Interpreter {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const command = args[0] === "run" ? args[0] : "run";
   const file = args[0] === "run" ? args[1] : args[0];
 
   if (args[0] === "--version" || args[0] === "-v") {
