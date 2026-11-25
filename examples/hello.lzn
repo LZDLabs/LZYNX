@@ -1,4 +1,4 @@
-# Meu primeiro programa em LZYNX
+# Primeiro programa LZYNX 0.0.2
 
 say("Hello, LZYNX!")
 
@@ -10,3 +10,9 @@ say(result)
 
 greeting = "Olá, " + name + "!"
 say(greeting)
+
+age = 20
+if age >= 18:
+    say("Maior de idade")
+else:
+    say("Menor de idade")
