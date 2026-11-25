@@ -371,7 +371,7 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args[0] === "--version" || args[0] === "-v") { console.log("LZYNX 0.0.4"); return; }
   if (args[0] === "--help" || args[0] === "-h" || args.length === 0) {
-    console.log("LZYNX 0.0.3");
+    console.log("LZYNX 0.0.4");
     console.log("Usage: lzn run <file.lzn>");
     console.log("       lzn build <file.lzn>");
     console.log("       lzn <file.lzn>");
